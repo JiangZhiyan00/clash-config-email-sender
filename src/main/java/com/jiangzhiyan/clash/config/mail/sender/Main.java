@@ -3,6 +3,10 @@ package com.jiangzhiyan.clash.config.mail.sender;
 import com.jiangzhiyan.clash.config.mail.sender.common.Const;
 import com.jiangzhiyan.clash.config.mail.sender.common.utils.MailUtil;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,8 +40,8 @@ public class Main {
      *
      * @return clash配置文件内容
      */
-    private static String getConfigContent() {
-        return getStripStr(System.getenv("CLASH_CONFIG_CONTENT")) + Const.StrPool.LF;
+    private static String getConfigContent() throws IOException {
+        return getFileContent(getStripStr("CLASH_CONFIG_FILE_PATH"));
     }
 
     /**
@@ -45,11 +49,11 @@ public class Main {
      *
      * @return 订阅了分支的有效的邮箱地址集合
      */
-    private static Set<String> getBranchValidEmails() {
+    private static Set<String> getBranchValidEmails() throws IOException {
         // 当前改动的分支名
         String branchName = System.getenv("BRANCH_NAME").toLowerCase();
         // 从环境变量中获取email和分支信息,格式xxx@yyy.com:branch1,branch2
-        String emails = getStripStr(System.getenv("EMAIL_BRANCHES"));
+        String emails = getFileContent(getStripStr(System.getenv("EMAILS_FILE_PATH")));
         if (emails.isBlank()) {
             return Collections.emptySet();
         }
@@ -74,6 +78,17 @@ public class Main {
             }
         });
         return emailSet;
+    }
+
+    /**
+     * 从指定路径读取文件内容
+     *
+     * @param path 路径
+     * @return 文件内容
+     * @throws IOException IO异常
+     */
+    private static String getFileContent(String path) throws IOException {
+        return Files.readString(Paths.get(path), StandardCharsets.UTF_8);
     }
 
     /**
