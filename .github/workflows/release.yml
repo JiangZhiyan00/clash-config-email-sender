@@ -1,0 +1,48 @@
+#permissions:
+#  contents: write
+#
+name: Build and Release JAR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Create Release and Upload Asset To Public Repository
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          #          draft: false
+          #          prerelease: false
+          generate_release_notes: true
+          files: |
+            ./target/clash-config-email-sender.jar
+          make_latest: true
+          repository: JiangZhiyan00/clash-config-email-sender
+          token: ${{ secrets.GITHUB_TOKEN }}
