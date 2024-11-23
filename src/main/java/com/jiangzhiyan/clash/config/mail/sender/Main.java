@@ -42,7 +42,7 @@ public class Main {
      * @return clash配置文件内容
      */
     private static String getConfigContent() throws IOException {
-        return getFileContent(getStripStr("CLASH_CONFIG_FILE_PATH"));
+        return getFileContent(getStripStr(System.getenv("CLASH_CONFIG_FILE_PATH")));
     }
 
     /**
