@@ -28,6 +28,7 @@ public class Main {
             }
         } catch (Exception e) {
             System.out.println("clash配置更新邮件通知任务发生异常:" + e.getMessage());
+            e.printStackTrace();
             System.exit(1);
         } finally {
             System.out.println("clash配置更新邮件通知任务结束...");
