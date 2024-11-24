@@ -29,7 +29,7 @@ public class Main {
                 MailUtil.sendEmail(configType, getConfigContent(configType), validEmails, getCommitAuthor(), getCommitMessage());
             }
         } catch (Exception e) {
-            System.out.println(configType.getName() + "配置更新邮件通知任务发生异常:" + e.getMessage());
+            System.err.println(configType.getName() + "配置更新邮件通知任务发生异常:" + e.getMessage());
             e.printStackTrace();
             System.exit(1);
         } finally {

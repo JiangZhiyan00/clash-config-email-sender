@@ -91,7 +91,7 @@ public class MailUtil {
                     Transport.send(message);
                     System.out.println(toEmail + Const.StrPool.COMMA + configType.getName() + "配置更新邮件通知发送成功.");
                 } catch (MessagingException e) {
-                    System.out.println(toEmail + Const.StrPool.COMMA + configType.getName() + "配置更新邮件通知发送失败.");
+                    System.err.println(toEmail + Const.StrPool.COMMA + configType.getName() + "配置更新邮件通知发送失败.");
                     throw new RuntimeException(e);
                 }
             });
@@ -106,6 +106,12 @@ public class MailUtil {
             System.out.println("汇总: [" + String.join(Const.StrPool.COMMA, toEmails) + "]" + configType.getName() + "配置更新邮件通知发送成功.");
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (tempFile.exists()) {
+                if (!tempFile.delete()) {
+                    System.err.println("Failed to delete temporary file: " + tempFile.getAbsolutePath());
+                }
+            }
         }
     }
 }
