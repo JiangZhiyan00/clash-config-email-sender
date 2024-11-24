@@ -24,7 +24,7 @@ public class Main {
             Set<String> validEmails = getBranchValidEmails();
             // 2.如果配置了邮箱地址,则发送邮件报告
             if (!validEmails.isEmpty()) {
-                MailUtil.sendEmail(getConfigContent(), validEmails);
+                MailUtil.sendEmail(getConfigContent(), validEmails, getCommitAuthor(), getCommitMessage());
             }
         } catch (Exception e) {
             System.out.println("clash配置更新邮件通知任务发生异常:" + e.getMessage());
@@ -34,6 +34,24 @@ public class Main {
             System.out.println("clash配置更新邮件通知任务结束...");
             System.exit(0);
         }
+    }
+
+    /**
+     * 获取本次提交者信息
+     *
+     * @return 本次提交者信息
+     */
+    private static String getCommitAuthor() {
+        return getStripStr(System.getenv("COMMIT_AUTHOR"));
+    }
+
+    /**
+     * 获取本次提交描述信息
+     *
+     * @return 本次提交描述信息
+     */
+    private static String getCommitMessage() {
+        return getStripStr(System.getenv("COMMIT_MESSAGE"));
     }
 
     /**

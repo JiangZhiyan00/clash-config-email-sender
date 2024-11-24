@@ -42,10 +42,14 @@ public class MailUtil {
         PROPS.put("mail.smtp.starttls.enable", "true");
     }
 
-    public static void sendEmail(String content, Set<String> toEmails) throws IOException {
+    public static void sendEmail(String content, Set<String> toEmails, String commitAuthor, String commitMessage) throws IOException, MessagingException {
         if (content == null || content.isBlank() || toEmails == null || toEmails.isEmpty()) {
             return;
         }
+
+        MimeBodyPart textBodyPart = new MimeBodyPart();
+        textBodyPart.setContent(String.join(Const.StrPool.LF, "更新描述: " + commitMessage, "作者: " + commitAuthor), "text/html; charset=utf-8");
+
         // 创建临时文件
         String fileName = LocalDateTime.now().format(DATE_FORMATTER2) + "_config.yml";
         File tempFile = File.createTempFile(LocalDateTime.now().format(DATE_FORMATTER2) + "_config", ".yml");
@@ -77,15 +81,16 @@ public class MailUtil {
                     attachmentBodyPart.setFileName(fileName);
 
                     Multipart multipart = new MimeMultipart();
+                    multipart.addBodyPart(textBodyPart);
                     multipart.addBodyPart(attachmentBodyPart);
 
                     message.setContent(multipart);
 
                     // Send the email
                     Transport.send(message);
-                    System.out.println('[' + toEmail + "]clash配置更新邮件通知发送成功.");
+                    System.out.println(toEmail + ",clash配置更新邮件通知发送成功.");
                 } catch (MessagingException e) {
-                    System.out.println('[' + toEmail + "]clash配置更新邮件通知发送失败.");
+                    System.out.println(toEmail + ",clash配置更新邮件通知发送失败.");
                     throw new RuntimeException(e);
                 }
             });
@@ -97,7 +102,7 @@ public class MailUtil {
         // 等待所有任务完成
         try {
             allOf.get();
-            System.out.println('[' + String.join(Const.StrPool.COMMA, toEmails) + "]clash配置更新邮件通知发送成功.");
+            System.out.println("汇总: [" + String.join(Const.StrPool.COMMA, toEmails) + "]clash配置更新邮件通知发送成功.");
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
