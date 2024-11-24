@@ -48,7 +48,7 @@ public class MailUtil {
         }
 
         MimeBodyPart textBodyPart = new MimeBodyPart();
-        textBodyPart.setContent(String.join(Const.StrPool.LF, "更新描述: " + commitMessage, "作者: " + commitAuthor), "text/html; charset=utf-8");
+        textBodyPart.setContent(String.join("<br/>", "<strong>更新描述:</strong> " + commitMessage, "<strong>作者:</strong> " + commitAuthor), "text/html; charset=utf-8");
 
         // 创建临时文件
         String fileName = LocalDateTime.now().format(DATE_FORMATTER2) + "_config.yml";
