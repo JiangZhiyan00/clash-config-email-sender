@@ -1,5 +1,6 @@
 package com.jiangzhiyan.clash.config.mail.sender.common.utils;
 
+import com.jiangzhiyan.clash.config.mail.sender.common.ConfigType;
 import com.jiangzhiyan.clash.config.mail.sender.common.Const;
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
@@ -42,19 +43,19 @@ public class MailUtil {
         PROPS.put("mail.smtp.starttls.enable", "true");
     }
 
-    public static void sendEmail(String content, Set<String> toEmails, String commitAuthor, String commitMessage) throws IOException, MessagingException {
-        if (content == null || content.isBlank() || toEmails == null || toEmails.isEmpty()) {
+    public static void sendEmail(ConfigType configType, String fileContent, Set<String> toEmails, String commitAuthor, String commitMessage) throws IOException, MessagingException {
+        if (configType == null || fileContent == null || fileContent.isBlank() || toEmails == null || toEmails.isEmpty()) {
             return;
         }
 
         MimeBodyPart textBodyPart = new MimeBodyPart();
-        textBodyPart.setContent(String.join("<br/>", "<strong>更新描述:</strong> " + commitMessage, "<strong>作者:</strong> " + commitAuthor), "text/html; charset=utf-8");
+        textBodyPart.setContent(String.join("<br/><br/>", "<strong>更新描述:</strong> " + commitMessage, "<strong>作者:</strong> " + commitAuthor), "text/html; charset=utf-8");
 
         // 创建临时文件
-        String fileName = LocalDateTime.now().format(DATE_FORMATTER2) + "_config.yml";
-        File tempFile = File.createTempFile(LocalDateTime.now().format(DATE_FORMATTER2) + "_config", ".yml");
+        String fileName = LocalDateTime.now().format(DATE_FORMATTER2) + "_config" + configType.getSuffix();
+        File tempFile = File.createTempFile(LocalDateTime.now().format(DATE_FORMATTER2) + "_config", configType.getSuffix());
         try (FileWriter writer = new FileWriter(tempFile)) {
-            writer.write(content);
+            writer.write(fileContent);
         }
 
         Session session = Session.getInstance(PROPS, new Authenticator() {
@@ -73,7 +74,7 @@ public class MailUtil {
                     MimeMessage message = new MimeMessage(session);
                     message.setFrom(new InternetAddress(SENDER_EMAIL));
                     message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-                    message.setSubject(LocalDateTime.now().format(DATE_FORMATTER).concat("_clash配置更新通知"));
+                    message.setSubject(LocalDateTime.now().format(DATE_FORMATTER).concat("_" + configType.getName() + "配置更新通知"));
 
                     MimeBodyPart attachmentBodyPart = new MimeBodyPart();
                     DataSource source = new FileDataSource(tempFile);
@@ -88,9 +89,9 @@ public class MailUtil {
 
                     // Send the email
                     Transport.send(message);
-                    System.out.println(toEmail + ",clash配置更新邮件通知发送成功.");
+                    System.out.println(toEmail + Const.StrPool.COMMA + configType.getName() + "配置更新邮件通知发送成功.");
                 } catch (MessagingException e) {
-                    System.out.println(toEmail + ",clash配置更新邮件通知发送失败.");
+                    System.out.println(toEmail + Const.StrPool.COMMA + configType.getName() + "配置更新邮件通知发送失败.");
                     throw new RuntimeException(e);
                 }
             });
@@ -102,7 +103,7 @@ public class MailUtil {
         // 等待所有任务完成
         try {
             allOf.get();
-            System.out.println("汇总: [" + String.join(Const.StrPool.COMMA, toEmails) + "]clash配置更新邮件通知发送成功.");
+            System.out.println("汇总: [" + String.join(Const.StrPool.COMMA, toEmails) + "]" + configType.getName() + "配置更新邮件通知发送成功.");
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }

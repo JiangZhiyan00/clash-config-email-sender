@@ -1,5 +1,6 @@
 package com.jiangzhiyan.clash.config.mail.sender;
 
+import com.jiangzhiyan.clash.config.mail.sender.common.ConfigType;
 import com.jiangzhiyan.clash.config.mail.sender.common.Const;
 import com.jiangzhiyan.clash.config.mail.sender.common.utils.MailUtil;
 
@@ -18,22 +19,38 @@ import java.util.stream.Collectors;
  */
 public class Main {
     public static void main(String[] args) {
-        System.out.println("clash配置更新邮件通知任务开始...");
+        ConfigType configType = getConfigType();
+        System.out.println(configType.getName() + "配置更新邮件通知任务开始...");
         try {
             // 1.获取订阅了改动分支的邮箱地址集合
             Set<String> validEmails = getBranchValidEmails();
             // 2.如果配置了邮箱地址,则发送邮件报告
             if (!validEmails.isEmpty()) {
-                MailUtil.sendEmail(getConfigContent(), validEmails, getCommitAuthor(), getCommitMessage());
+                MailUtil.sendEmail(configType, getConfigContent(configType), validEmails, getCommitAuthor(), getCommitMessage());
             }
         } catch (Exception e) {
-            System.out.println("clash配置更新邮件通知任务发生异常:" + e.getMessage());
+            System.out.println(configType.getName() + "配置更新邮件通知任务发生异常:" + e.getMessage());
             e.printStackTrace();
             System.exit(1);
         } finally {
-            System.out.println("clash配置更新邮件通知任务结束...");
+            System.out.println(configType.getName() + "配置更新邮件通知任务结束...");
             System.exit(0);
         }
+    }
+
+    /**
+     * 获取配置类型,目前有clash和shadowrocket
+     *
+     * @return 获取配置类型
+     */
+    private static ConfigType getConfigType() {
+        String configTypeStr = getStripStr(System.getenv("CONFIG_TYPE"));
+        ConfigType configType = ConfigType.toConfigType(configTypeStr);
+        if (configType == null) {
+            throw new RuntimeException("配置类型不存在: " + configTypeStr);
+        }
+
+        return configType;
     }
 
     /**
@@ -59,8 +76,8 @@ public class Main {
      *
      * @return clash配置文件内容
      */
-    private static String getConfigContent() throws IOException {
-        return getFileContent(getStripStr(System.getenv("CLASH_CONFIG_FILE_PATH")));
+    private static String getConfigContent(ConfigType configType) throws IOException {
+        return getFileContent(getStripStr(System.getenv(configType.getEnv())));
     }
 
     /**
