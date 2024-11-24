@@ -49,7 +49,11 @@ public class MailUtil {
         }
 
         MimeBodyPart textBodyPart = new MimeBodyPart();
-        textBodyPart.setContent(String.join("<br/><br/>", "<strong>更新描述:</strong> " + commitMessage, "<strong>作者:</strong> " + commitAuthor), "text/html; charset=utf-8");
+        textBodyPart.setContent(String.join("<br/><br/>",
+                "<strong>更新描述:</strong> " + commitMessage,
+                "<strong>作者:</strong> " + commitAuthor,
+                "<i style='color: #999; font-size: smaller;'>此邮件由机器人自动发出，无需回复。</i>"
+        ), "text/html; charset=utf-8");
 
         // 创建临时文件
         String fileName = LocalDateTime.now().format(DATE_FORMATTER2) + "_config" + configType.getSuffix();
