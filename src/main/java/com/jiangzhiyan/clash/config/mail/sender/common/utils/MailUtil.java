@@ -50,8 +50,9 @@ public class MailUtil {
 
         MimeBodyPart textBodyPart = new MimeBodyPart();
         textBodyPart.setContent(String.join("<br/><br/>",
-                "<strong>更新描述:</strong> " + commitMessage,
                 "<strong>作者:</strong> " + commitAuthor,
+                "<strong>更新描述:</strong> " + commitMessage,
+                "<strong>文档:</strong> <a href='" + configType.getDocUrl() + "' target='_blank'>查看教程</a>",
                 "<i style='color: #999; font-size: smaller;'>此邮件由机器人自动发出，无需回复。</i>"
         ), "text/html; charset=utf-8");
 
