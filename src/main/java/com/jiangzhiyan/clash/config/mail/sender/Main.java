@@ -22,11 +22,13 @@ public class Main {
         ConfigType configType = getConfigType();
         System.out.println(configType.getName() + "配置更新邮件通知任务开始...");
         try {
-            // 1.获取订阅了改动分支的邮箱地址集合
-            Set<String> validEmails = getBranchValidEmails();
-            // 2.如果配置了邮箱地址,则发送邮件报告
+            // 1.获取分支名
+            String branchName = getBranchName();
+            // 2.获取订阅了改动分支的邮箱地址集合
+            Set<String> validEmails = getBranchValidEmails(branchName);
+            // 3.如果配置了邮箱地址,则发送邮件报告
             if (!validEmails.isEmpty()) {
-                MailUtil.sendEmail(configType, getConfigContent(configType), validEmails, getCommitAuthor(), getCommitMessage());
+                MailUtil.sendEmail(branchName, configType, getConfigContent(configType), validEmails, getCommitAuthor(), getCommitMessage());
             }
         } catch (Exception e) {
             System.err.println(configType.getName() + "配置更新邮件通知任务发生异常:" + e.getMessage());
@@ -81,13 +83,20 @@ public class Main {
     }
 
     /**
+     * 获取分支名
+     *
+     * @return 分支名
+     */
+    private static String getBranchName() {
+        return getStripStr(System.getenv("BRANCH_NAME"));
+    }
+
+    /**
      * 获取订阅了分支的有效的邮箱地址集合
      *
      * @return 订阅了分支的有效的邮箱地址集合
      */
-    private static Set<String> getBranchValidEmails() throws IOException {
-        // 当前改动的分支名
-        String branchName = System.getenv("BRANCH_NAME").toLowerCase();
+    private static Set<String> getBranchValidEmails(String branchName) throws IOException {
         // 从环境变量中获取email和分支信息,格式xxx@yyy.com:branch1,branch2
         String emails = getFileContent(getStripStr(System.getenv("EMAILS_FILE_PATH")));
         if (emails.isBlank()) {

@@ -15,6 +15,7 @@ import lombok.experimental.UtilityClass;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class MailUtil {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final DateTimeFormatter DATE_FORMATTER2 = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
     private static final Properties PROPS;
+    private static final String CLASH_CONFIG_URL_TEMPLATE = "https://proxy.jzy88.top/https%3A%2F%2Fraw.githubusercontent.com%2FJiangZhiyan00%2Fclash_config%2Frefs%2Fheads%2F{0}%2Fclash%2Fconfig.yml";
 
     static {
         PROPS = new Properties(4);
@@ -43,18 +45,24 @@ public class MailUtil {
         PROPS.put("mail.smtp.starttls.enable", "true");
     }
 
-    public static void sendEmail(ConfigType configType, String fileContent, Set<String> toEmails, String commitAuthor, String commitMessage) throws IOException, MessagingException {
+    public static void sendEmail(String branchName, ConfigType configType, String fileContent, Set<String> toEmails, String commitAuthor, String commitMessage) throws IOException, MessagingException {
         if (configType == null || fileContent == null || fileContent.isBlank() || toEmails == null || toEmails.isEmpty()) {
             return;
         }
 
-        MimeBodyPart textBodyPart = new MimeBodyPart();
-        textBodyPart.setContent(String.join("<br/><br/>",
-                "<strong>作者:</strong> " + commitAuthor,
+        List<String> emailContent = configType == ConfigType.CLASH
+                ? List.of("<strong>作者:</strong> " + commitAuthor,
                 "<strong>更新描述:</strong> " + commitMessage,
                 "<strong>文档:</strong> <a href='" + configType.getDocUrl() + "' target='_blank'>查看教程</a>",
-                "<i style='color: #999; font-size: smaller;'>此邮件由机器人自动发出，无需回复。</i>"
-        ), "text/html; charset=utf-8");
+                "<strong>订阅链接:</strong> <a href='" + MessageFormat.format(CLASH_CONFIG_URL_TEMPLATE, branchName) + "' target='_blank'><i style='color: #228B22;'><u>打开然后复制链接url</u></i></a>",
+                "<i style='color: #999; font-size: smaller;'>此邮件由机器人自动发出，无需回复。</i>")
+                : List.of("<strong>作者:</strong> " + commitAuthor,
+                "<strong>更新描述:</strong> " + commitMessage,
+                "<strong>文档:</strong> <a href='" + configType.getDocUrl() + "' target='_blank'>查看教程</a>",
+                "<i style='color: #999; font-size: smaller;'>此邮件由机器人自动发出，无需回复。</i>");
+
+        MimeBodyPart textBodyPart = new MimeBodyPart();
+        textBodyPart.setContent(String.join("<br/><br/>", emailContent), "text/html; charset=utf-8");
 
         // 创建临时文件
         String fileName = LocalDateTime.now().format(DATE_FORMATTER2) + "_config" + configType.getSuffix();
