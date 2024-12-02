@@ -57,6 +57,8 @@ public class MailUtil {
         File tempFile = null;
         MimeBodyPart attachmentBodyPart;
         if (configType == ConfigType.CLASH) {
+            attachmentBodyPart = null;
+        } else {
             // 创建临时文件
             String fileName = LocalDateTime.now().format(DATE_FORMATTER2) + "_config" + configType.getSuffix();
             tempFile = File.createTempFile(LocalDateTime.now().format(DATE_FORMATTER2) + "_config", configType.getSuffix());
@@ -67,8 +69,6 @@ public class MailUtil {
             DataSource source = new FileDataSource(tempFile);
             attachmentBodyPart.setDataHandler(new DataHandler(source));
             attachmentBodyPart.setFileName(fileName);
-        } else {
-            attachmentBodyPart = null;
         }
 
         Session session = Session.getInstance(PROPS, new Authenticator() {
