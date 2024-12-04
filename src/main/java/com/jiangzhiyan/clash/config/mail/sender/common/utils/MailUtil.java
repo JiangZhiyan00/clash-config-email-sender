@@ -45,7 +45,7 @@ public class MailUtil {
         String emailTextContent = String.join("<br/><br/>",
                 "<strong>作者:</strong> " + commitAuthor,
                 "<strong>更新描述:</strong> " + commitMessage,
-                "<strong>文档:</strong> <a href='" + configType.getDocUrl() + "' target='_blank'>查看教程</a>",
+                "<strong>文档:</strong> <a href='https://proxy.jzy88.top/https%3A%2F%2Fjiangzhiyan00.github.io%2Fclash_config%2F' target='_blank'>查看教程</a>",
                 "<strong>订阅链接:</strong> <a href='" + MessageFormat.format(CLASH_CONFIG_URL_TEMPLATE, branchName) + "' target='_blank'><i style='color: #228B22;'><u>打开然后复制链接url</u></i></a>",
                 "<i style='color: #999; font-size: smaller;'>此邮件由机器人自动发出，无需回复。</i>");
 
