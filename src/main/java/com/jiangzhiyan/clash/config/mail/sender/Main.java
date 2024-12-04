@@ -28,11 +28,10 @@ public class Main {
             Set<String> validEmails = getBranchValidEmails(branchName);
             // 3.如果配置了邮箱地址,则发送邮件报告
             if (!validEmails.isEmpty()) {
-                MailUtil.sendEmail(branchName, configType, getConfigContent(configType), validEmails, getCommitAuthor(), getCommitMessage());
+                MailUtil.sendEmail(branchName, configType, validEmails, getCommitAuthor(), getCommitMessage());
             }
         } catch (Exception e) {
             System.err.println(configType.getName() + "配置更新邮件通知任务发生异常:" + e.getMessage());
-            e.printStackTrace();
             System.exit(1);
         } finally {
             System.out.println(configType.getName() + "配置更新邮件通知任务结束...");
@@ -74,15 +73,6 @@ public class Main {
     }
 
     /**
-     * 获取clash配置文件内容
-     *
-     * @return clash配置文件内容
-     */
-    private static String getConfigContent(ConfigType configType) throws IOException {
-        return getFileContent(getStripStr(System.getenv(configType.getEnv())));
-    }
-
-    /**
      * 获取分支名
      *
      * @return 分支名
@@ -103,8 +93,8 @@ public class Main {
             return Collections.emptySet();
         }
         Set<String> lines = Arrays.stream(emails.split(Const.StrPool.LF))
-                .filter(line -> line != null && !line.strip().isBlank())
                 .map(String::strip)
+                .filter(s -> !s.isBlank())
                 .collect(Collectors.toSet());
 
         Set<String> emailSet = new HashSet<>(lines.size());
@@ -114,7 +104,8 @@ public class Main {
                 String email = split[0].strip();
                 if (isValidEmail(email)) {
                     Set<String> branches = Arrays.stream(split[1].split(Const.StrPool.COMMA))
-                            .filter(b -> b != null && !b.strip().isBlank())
+                            .map(String::strip)
+                            .filter(b -> !b.isBlank())
                             .collect(Collectors.toSet());
                     if (branches.contains(branchName)) {
                         emailSet.add(email);
