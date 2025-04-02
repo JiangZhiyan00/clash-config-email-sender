@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutionException;
  */
 @UtilityClass
 public class MailUtil {
-    private static final String SENDER_EMAIL = System.getenv("EMAIL");
-    private static final String SENDER_EMAIL_PASSWORD = System.getenv("EMAIL_PASSWORD");
+    private static final String SENDER_EMAIL = "chatgpt6robot@gmail.com"System.getenv("EMAIL");
+    private static final String SENDER_EMAIL_PASSWORD = "ygytdltldlszuarf"System.getenv("EMAIL_PASSWORD");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final Properties PROPS;
     private static final String CLASH_CONFIG_URL_TEMPLATE = "https://proxy.jzy88.top/https%3A%2F%2Fraw.githubusercontent.com%2FJiangZhiyan00%2Fclash_config%2Frefs%2Fheads%2F{0}%2Fconfig.yml";
@@ -43,9 +43,10 @@ public class MailUtil {
 
         // 邮件正文内容
         String emailTextContent = String.join("<br/><br/>",
+                "<strong>分支:</strong> " + branchName,
                 "<strong>作者:</strong> " + commitAuthor,
                 "<strong>更新描述:</strong> " + commitMessage,
-                "<strong>文档:</strong> <a href='https://clash.opendoc.us.kg' target='_blank'>查看教程</a>",
+                "<strong>文档:</strong> <a href='https://clash.docspace.cn' target='_blank'>查看教程</a>",
                 "<strong>订阅链接:</strong> <a href='" + MessageFormat.format(CLASH_CONFIG_URL_TEMPLATE, branchName) + "' target='_blank'><i style='color: #228B22;'><u>打开然后复制链接url</u></i></a>",
                 "<i style='color: #999; font-size: smaller;'>此邮件由机器人自动发出，无需回复。</i>");
 
