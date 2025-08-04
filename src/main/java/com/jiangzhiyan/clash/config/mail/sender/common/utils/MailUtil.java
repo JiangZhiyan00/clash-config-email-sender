@@ -26,7 +26,7 @@ public class MailUtil {
     private static final String SENDER_EMAIL_PASSWORD = System.getenv("EMAIL_PASSWORD");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final Properties PROPS;
-    private static final String CLASH_CONFIG_URL_TEMPLATE = "https://proxy.jzy88.top/https%3A%2F%2Fraw.githubusercontent.com%2FJiangZhiyan00%2Fclash_config%2Frefs%2Fheads%2F{0}%2Fconfig.yml";
+    private static final String CLASH_CONFIG_URL_TEMPLATE = "https://clash_config.jzy88.top/{0}";
 
     static {
         PROPS = new Properties(4);
